@@ -94,6 +94,12 @@ export function BookingForm() {
                         checkIn: new Date(),
                         checkOut: new Date()
                       }))
+                      setIsCouponApplied(false)
+                      setCouponMessage(null)
+                      setBooking(prev => ({
+                        ...prev,
+                        couponCode: ""
+                      }))
                     }}
                   >
                     <RefreshCw className="w-4 h-4 mr-2" />
@@ -205,6 +211,7 @@ export function BookingForm() {
                 placeholder="クーポンコードを入力"
                 value={booking.couponCode}
                 onChange={(e) => setBooking(prev => ({ ...prev, couponCode: e.target.value }))}
+                disabled={isCouponApplied}
               />
               <Button
                 type="button"
@@ -216,10 +223,11 @@ export function BookingForm() {
                   } else {
                     setCouponMessage({ text: "クーポンの発行に失敗しました", isSuccess: false })
                     setIsCouponApplied(false)
+                    setBooking(prev => ({ ...prev, couponCode: "" }))
                   }
                 }}
               >
-                決定
+                {isCouponApplied ? "適用済" : "決定"}
               </Button>
             </div>
             {couponMessage && (
