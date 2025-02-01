@@ -23,31 +23,32 @@ export default function GuestInfoPage() {
     <div className="container max-w-2xl mx-auto py-8">
       <Card>
         <CardHeader>
-          <CardTitle>お客様情報の入力</CardTitle>
+          <CardTitle>お客様情報の入力（代表者のみ）/ Guest Information (Primary Guest)</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">氏名</Label>
-              <Input id="name" name="name" required />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="lastName">姓 / Family Name</Label>
+                <Input id="lastName" name="lastName" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="firstName">名 / Given Name</Label>
+                <Input id="firstName" name="firstName" required />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nameKana">フリガナ</Label>
-              <Input id="nameKana" name="nameKana" required />
+              <Label htmlFor="email">メールアドレス / Email</Label>
+              <Input id="email" name="email" type="email" required />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address">住所</Label>
-              <Input id="address" name="address" required />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">電話番号</Label>
+              <Label htmlFor="phone">電話番号 / Phone</Label>
               <Input id="phone" name="phone" type="tel" required />
             </div>
 
-            <Button type="submit" className="w-full">予約を確定する</Button>
+            <Button type="submit" className="w-full">予約を確定する / Confirm Reservation</Button>
           </form>
         </CardContent>
       </Card>
