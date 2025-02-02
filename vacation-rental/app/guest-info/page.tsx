@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,46 +11,25 @@ export default function GuestInfoPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-  
+
     const formData = new FormData(e.currentTarget);
     const guestData = {
-      name: `${formData.get("lastName")} ${formData.get("firstName")}`,
+      lastName: formData.get("lastName")?.toString() || "",
+      firstName: formData.get("firstName")?.toString() || "",
       email: formData.get("email")?.toString() || "",
       phone: formData.get("phone")?.toString() || "",
     };
-  
-    try {
-      const response = await fetch("/api/create-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: 10000, // ここを予約金額に応じて変更
-          currency: "JPY",
-          external_order_num: `ORDER-${Date.now()}`,
-          ...guestData,
-        }),
-      });
-  
-      const result = await response.json();
-      console.log("API Response:", result);
-  
-      if (response.ok && result.session_url) {
-        console.log("Redirecting to:", result.session_url);
-        window.location.href = result.session_url;
-      } else {
-        console.error("Failed to initialize payment:", result);
-        alert("決済の初期化に失敗しました: " + (result.error || "不明なエラー"));
-      }
-    } catch (error) {
-      console.error("Payment error:", error);
-      alert("エラーが発生しました。もう一度お試しください。");
-    } finally {
-      setLoading(false);
-    }
-  };  
+
+    // ローカルストレージに保存
+    localStorage.setItem("guestInfo", JSON.stringify(guestData));
+
+    // 確認ページに遷移
+    router.push("/check");
+    setLoading(false);
+  };
 
   return (
     <div className="container max-w-2xl mx-auto py-8">
@@ -84,7 +63,7 @@ export default function GuestInfoPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "処理中..." : "予約を確定する / Confirm Reservation"}
+              {loading ? "処理中..." : "確認"}
             </Button>
           </form>
         </CardContent>
