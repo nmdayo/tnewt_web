@@ -1,29 +1,64 @@
 'use client'
 
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { GuestInformation } from "@/types/booking"
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function GuestInfoPage() {
-  const router = useRouter()
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    
-    // Here you would typically send the data to your server
-    // For now, we'll just redirect to the confirmation page
-    router.push("/confirmation")
-  }
+    e.preventDefault();
+    setLoading(true);
+  
+    const formData = new FormData(e.currentTarget);
+    const guestData = {
+      name: `${formData.get("lastName")} ${formData.get("firstName")}`,
+      email: formData.get("email")?.toString() || "",
+      phone: formData.get("phone")?.toString() || "",
+    };
+  
+    try {
+      const response = await fetch("/api/create-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: 10000, // ここを予約金額に応じて変更
+          currency: "JPY",
+          external_order_num: `ORDER-${Date.now()}`,
+          ...guestData,
+        }),
+      });
+  
+      const result = await response.json();
+      console.log("API Response:", result);
+  
+      if (response.ok && result.session_url) {
+        console.log("Redirecting to:", result.session_url);
+        window.location.href = result.session_url;
+      } else {
+        console.error("Failed to initialize payment:", result);
+        alert("決済の初期化に失敗しました: " + (result.error || "不明なエラー"));
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("エラーが発生しました。もう一度お試しください。");
+    } finally {
+      setLoading(false);
+    }
+  };  
 
   return (
     <div className="container max-w-2xl mx-auto py-8">
       <Card>
         <CardHeader>
-          <CardTitle>お客様情報の入力（代表者のみ）/ Guest Information (Primary Guest)</CardTitle>
+          <CardTitle>
+            お客様情報の入力（代表者のみ）/ Guest Information (Primary Guest)
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -48,11 +83,12 @@ export default function GuestInfoPage() {
               <Input id="phone" name="phone" type="tel" required />
             </div>
 
-            <Button type="submit" className="w-full">予約を確定する / Confirm Reservation</Button>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "処理中..." : "予約を確定する / Confirm Reservation"}
+            </Button>
           </form>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-

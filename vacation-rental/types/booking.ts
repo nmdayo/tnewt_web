@@ -16,6 +16,7 @@ export interface GuestInformation {
   name: string
   nameKana: string
   address: string
+  email: string
   phone: string
 }
 
