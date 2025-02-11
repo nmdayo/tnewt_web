@@ -1,23 +1,26 @@
-import { CheckCircle } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ConfirmationPage() {
-  return (
-    <div className="container max-w-2xl mx-auto py-8">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <CheckCircle className="w-8 h-8 text-green-500" />
-            <CardTitle>予約が完了しました</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            ご予約ありがとうございます。予約確認メールを送信しましたので、ご確認ください。
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
+  const router = useRouter();
 
+  useEffect(() => {
+    // クエリパラメータをチェック
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("status") === "canceled") {
+      router.replace("/cancel"); // キャンセル時はキャンセルページへ
+    }
+
+    // ページのキャッシュを防ぐ
+    window.history.replaceState(null, "", window.location.href);
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1 className="text-2xl font-bold">予約が完了しました</h1>
+      <p className="text-gray-600">予約確認メールを送信しましたので、ご確認ください。</p>
+    </div>
+  );
+}

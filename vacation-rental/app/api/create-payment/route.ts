@@ -20,7 +20,6 @@ export async function POST(request: Request) {
       external_order_num: data.external_order_num,
       email: data.email,
       name: data.name,
-      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/confirmation`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
       locale: "ja",
       default_payment_method: "credit_card",
