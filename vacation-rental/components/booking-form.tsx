@@ -32,6 +32,7 @@ export function BookingForm() {
   })
   const [isCouponApplied, setIsCouponApplied] = useState(false)
   const [couponMessage, setCouponMessage] = useState<{ text: string; isSuccess: boolean } | null>(null)
+  const [totalPrice, setTotalPrice] = useState(1000);
 
   const calculateNights = (checkIn: Date, checkOut: Date) => {
     const diffTime = checkOut.getTime() - checkIn.getTime()
@@ -67,6 +68,12 @@ export function BookingForm() {
 
     return total
   }
+
+  useEffect(() => {
+    const newTotal = calculateTotal(booking);
+    setTotalPrice(newTotal);
+    localStorage.setItem("bookingAmount", JSON.stringify(newTotal));
+  }, [booking, isCouponApplied]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
