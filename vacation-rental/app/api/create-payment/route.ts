@@ -48,6 +48,26 @@ export async function POST(request: Request) {
     const paymentSession = JSON.parse(responseText);
     console.log("Payment Session Created:", paymentSession);
 
+    console.log("Sending booking data to /api/book");
+
+    const bookingResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/book`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        checkIn: data.checkIn,
+        checkOut: data.checkOut,
+      }),
+    });
+
+    const bookingResult = await bookingResponse.json();
+    console.log("Booking API Response:", bookingResult);
+
+    if (!bookingResponse.ok) {
+      throw new Error(`Failed to create booking: ${JSON.stringify(bookingResult)}`);
+    }
+
     // `session_url`を返却
     return NextResponse.json({ session_url: paymentSession.session_url });
   } catch (error) {
