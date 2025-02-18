@@ -1,61 +1,67 @@
 'use client';
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function CheckPage() {
   const router = useRouter();
-  const [guestInfo, setGuestInfo] = useState({ lastName: "", firstName: "", email: "", phone: "" });
-  const [amount, setAmount] = useState(10000);
+  const [guestInfo, setGuestInfo] = useState<any>(null);
+  const [bookingAmount, setBookingAmount] = useState<number>(0);
 
   useEffect(() => {
-    // ローカルストレージからデータを取得
-    const savedGuestInfo = localStorage.getItem("guestInfo");
-    const savedAmount = localStorage.getItem("bookingAmount");
-    if (savedGuestInfo) setGuestInfo(JSON.parse(savedGuestInfo));
-    if (savedAmount) setAmount(JSON.parse(savedAmount));
+    const storedGuestInfo = localStorage.getItem("guestInfo");
+    const storedAmount = localStorage.getItem("bookingAmount");
+    if (storedGuestInfo) {
+      setGuestInfo(JSON.parse(storedGuestInfo));
+    }
+    if (storedAmount) {
+      setBookingAmount(JSON.parse(storedAmount));
+    }
   }, []);
 
   const handlePayment = async () => {
     try {
-      // 支払いセッションを作成
       const response = await fetch("/api/create-payment", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          name: `${guestInfo.lastName} ${guestInfo.firstName}`,
-          email: guestInfo.email,
-          phone: guestInfo.phone,
-          amount,
+          amount: bookingAmount,
           currency: "JPY",
+          external_order_num: `ORDER-${Date.now()}`,
+          email: guestInfo?.email,
+          name: `${guestInfo?.lastName} ${guestInfo?.firstName}`
         }),
       });
 
-      const result = await response.json();
-
-      if (response.ok && result.session_url) {
-        // 支払いページにリダイレクト
-        window.location.href = result.session_url;
+      const data = await response.json();
+      if (response.ok && data.session_url) {
+        window.location.href = data.session_url;
       } else {
-        console.error("支払いエラー:", result);
-        alert("支払いページに遷移できませんでした");
+        throw new Error(data.error || "支払いの初期化に失敗しました");
       }
     } catch (error) {
-      console.error("支払い処理エラー:", error);
-      alert("支払い処理中にエラーが発生しました");
+      console.error("Payment error:", error);
+      alert("支払いの処理中にエラーが発生しました");
     }
   };
 
   return (
     <div className="container max-w-2xl mx-auto py-8">
       <h1 className="text-2xl font-bold mb-6">確認ページ</h1>
-      <p>名前: {`${guestInfo.lastName} ${guestInfo.firstName}`}</p>
-      <p>メールアドレス: {guestInfo.email}</p>
-      <p>電話番号: {guestInfo.phone}</p>
-      <p>金額: ¥{amount}</p>
-      <button onClick={handlePayment} className="mt-4 p-2 bg-green-500 text-white rounded">
-        支払い
-      </button>
+      {guestInfo && (
+        <div className="space-y-4">
+          <p>名前: {guestInfo.lastName} {guestInfo.firstName}</p>
+          <p>メールアドレス: {guestInfo.email}</p>
+          <p>電話番号: {guestInfo.phone}</p>
+          <p>金額: ¥{bookingAmount.toLocaleString()}</p>
+          <Button onClick={handlePayment} className="w-full">
+            支払い
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
