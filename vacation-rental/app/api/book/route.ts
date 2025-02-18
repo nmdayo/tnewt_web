@@ -10,13 +10,13 @@ try {
     SERVICE_ACCOUNT_KEY = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY.replace(/\\n/g, "\n"));
   }
 } catch (error) {
-  console.error("❌JSON パースエラー:", error);
+  console.error("❌ JSON パースエラー:", error);
 }
 
 
 async function getAuthenticatedClient() {
   if (!SERVICE_ACCOUNT_KEY) {
-    throw new Error("❌Google service account key is missing");
+    throw new Error("❌ Google service account key is missing");
   }
 
   console.log("🔍使用する Google サービスアカウント:", SERVICE_ACCOUNT_KEY.client_email);
