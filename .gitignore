@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules/
+/home/fuka/tnewt_web/noa_fork/tnewt_web/node_modules
 /vacation-rental/node_modules/
 
 # next.js
