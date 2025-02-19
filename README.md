@@ -42,9 +42,9 @@ npm install --save-dev @types/node
 npm install next@latest
 ```
 
-# テスト環境を起動
+# node_modulesをインストール
 ```
-npm run dev
+npm install
 ```
 
 # テスト環境を起動
