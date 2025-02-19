@@ -16,15 +16,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/guest-info/page.js"
     ],
-    "/check/page": [
+    "/confirm/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/check/page.js"
+      "static/chunks/app/confirm/page.js"
     ],
-    "/api/create-payment/route": [
+    "/email-sent/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/create-payment/route.js"
+      "static/chunks/app/email-sent/page.js"
     ]
   }
 }

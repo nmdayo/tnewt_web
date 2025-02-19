@@ -26,8 +26,8 @@ export default function GuestInfoPage() {
     // ローカルストレージに保存
     localStorage.setItem("guestInfo", JSON.stringify(guestData));
 
-    // 確認ページに遷移
-    router.push("/check");
+    // 確認ページに遷移（/checkから/confirmに変更）
+    router.push("/confirm");
     setLoading(false);
   };
 
