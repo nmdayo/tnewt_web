@@ -34,9 +34,27 @@ export default function ConfirmPage() {
     router.push("/guest-info");
   };
 
-  const handleConfirm = () => {
-    // 確認メール送信ページへ遷移
-    router.push("/email-sent");
+  const handleConfirm = async () => {
+    try {
+      // メール送信APIを呼び出し
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(guestInfo),
+      });
+
+      if (!response.ok) {
+        throw new Error("メール送信に失敗しました");
+      }
+
+      // 成功したら確認メール送信完了ページへ遷移
+      router.push("/email-sent");
+    } catch (error) {
+      console.error("Error sending email:", error);
+      alert("メールの送信に失敗しました。もう一度お試しください。");
+    }
   };
 
   return (
