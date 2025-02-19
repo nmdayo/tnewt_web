@@ -17,26 +17,43 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
-    const { lastName, firstName, email, phone } = data;
+    const { lastName, firstName, email, phone, amount } = data;
+
+    // 支払いページのURL生成
+    const paymentUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/check`;
 
     // メールの内容を作成
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "入力内容の確認 / Confirmation of Your Information",
+      subject: "予約内容の確認 / Booking Confirmation",
       html: `
-        <h2>入力内容の確認 / Confirmation of Your Information</h2>
+        <h2>予約内容の確認 / Booking Confirmation</h2>
         
-        <p>以下の内容で承りました。/ We have received your information as follows:</p>
+        <p>以下の内容で承りました。/ We have received your booking information as follows:</p>
         
         <div style="margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
           <p><strong>お名前 / Name:</strong> ${lastName} ${firstName}</p>
           <p><strong>メールアドレス / Email:</strong> ${email}</p>
           <p><strong>電話番号 / Phone:</strong> ${phone}</p>
+          <p><strong>予約金額 / Amount:</strong> ¥${amount?.toLocaleString() || '0'}</p>
         </div>
         
-        <p>ご不明な点がございましたら、お気軽にお問い合わせください。</p>
-        <p>If you have any questions, please feel free to contact us.</p>
+        <div style="margin: 30px 0; text-align: center;">
+          <a href="${paymentUrl}" 
+             style="background-color: #0070f3; color: white; padding: 12px 24px; 
+                    text-decoration: none; border-radius: 5px; display: inline-block;">
+            お支払いに進む / Proceed to Payment
+          </a>
+        </div>
+        
+        <p>上記のボタンをクリックして、お支払い手続きにお進みください。</p>
+        <p>Please click the button above to proceed with the payment.</p>
+        
+        <p style="margin-top: 20px; font-size: 0.9em; color: #666;">
+          ご不明な点がございましたら、お気軽にお問い合わせください。<br>
+          If you have any questions, please feel free to contact us.
+        </p>
       `,
     };
 

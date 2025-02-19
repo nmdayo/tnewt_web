@@ -10,6 +10,7 @@ type GuestInfo = {
   firstName: string;
   email: string;
   phone: string;
+  amount: number;
 };
 
 export default function ConfirmPage() {
@@ -18,7 +19,8 @@ export default function ConfirmPage() {
     lastName: "",
     firstName: "",
     email: "",
-    phone: ""
+    phone: "",
+    amount: 0
   });
 
   useEffect(() => {
@@ -36,24 +38,28 @@ export default function ConfirmPage() {
 
   const handleConfirm = async () => {
     try {
-      // メール送信APIを呼び出し
+      // メール送信APIを呼び出し（金額情報を追加）
       const response = await fetch("/api/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(guestInfo),
+        body: JSON.stringify({
+          ...guestInfo,
+          amount: guestInfo.amount
+        }),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error("メール送信に失敗しました");
+        throw new Error(result.error || "メール送信に失敗しました");
       }
 
-      // 成功したら確認メール送信完了ページへ遷移
       router.push("/email-sent");
     } catch (error) {
       console.error("Error sending email:", error);
-      alert("メールの送信に失敗しました。もう一度お試しください。");
+      alert(error instanceof Error ? error.message : "メールの送信に失敗しました。もう一度お試しください。");
     }
   };
 
