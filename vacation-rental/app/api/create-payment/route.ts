@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Buffer } from "buffer";
+import { headers } from "next/headers";
 
 const KOMOJU_API_KEY = process.env.KOMOJU_API_KEY;
 const KOMOJU_MERCHANT_UUID = process.env.KOMOJU_MERCHANT_UUID;
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
         Authorization: `Basic ${Buffer.from(KOMOJU_API_KEY + ":").toString("base64")}`,
       },
       body: JSON.stringify(komojuData),
+      signal: AbortSignal.timeout(30000) // 30秒
     });
 
     const responseText = await response.text();
@@ -50,10 +52,20 @@ export async function POST(request: Request) {
 
     // `session_url`を返却
     return NextResponse.json({ session_url: paymentSession.session_url });
-  } catch (error) {
-    console.error("Payment initialization failed:", error);
+  } catch (error: unknown) {
+    console.error("Payment initialization error:", error);
+    
+    let errorMessage = "支払い処理の初期化に失敗しました。";
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        errorMessage = '支払い処理がタイムアウトしました。しばらく待ってから再度お試しください。';
+      } else if (error.message.includes('KOMOJU API Error')) {
+        errorMessage = error.message;
+      }
+    }
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "不明なエラー" },
+      { error: errorMessage },
       { status: 500 }
     );
   }
