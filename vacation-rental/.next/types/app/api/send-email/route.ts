@@ -1,4 +1,4 @@
-// File: /home/fuka/tnewt_web/noa_fork/tnewt_web/vacation-rental/app/api/send-email/route.ts
+// File: /home/noa/tnewt/tnewt_web/vacation-rental/app/api/send-email/route.ts
 import * as entry from '../../../../../app/api/send-email/route.js'
 import type { NextRequest } from 'next/server.js'
 

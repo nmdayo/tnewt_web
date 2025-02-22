@@ -72,13 +72,35 @@ export function BookingForm() {
   useEffect(() => {
     const newTotal = calculateTotal(booking);
     setTotalPrice(newTotal);
+    
+    // 日付データをISO文字列として保存
+    if (dateRange?.from && dateRange?.to) {
+      localStorage.setItem("bookingDates", JSON.stringify({
+        checkIn: dateRange.from.toISOString(),
+        checkOut: dateRange.to.toISOString()
+      }));
+    }
+    
     localStorage.setItem("bookingAmount", JSON.stringify(newTotal));
-  }, [booking, isCouponApplied]);
+  }, [booking, isCouponApplied, dateRange]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    router.push("/guest-info")
-  }
+    e.preventDefault();
+
+    // 選択された日付をローカルストレージに保存
+    if (dateRange?.from && dateRange?.to) {
+      localStorage.setItem("bookingDates", JSON.stringify({
+        checkIn: dateRange.from.toISOString(),
+        checkOut: dateRange.to.toISOString()
+      }));
+    }
+
+    // 予約金額を保存
+    localStorage.setItem("bookingAmount", JSON.stringify(totalPrice));
+
+    // 確認ページへ遷移
+    router.push("/guest-info");
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">

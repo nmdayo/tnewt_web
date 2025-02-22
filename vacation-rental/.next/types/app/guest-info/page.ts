@@ -1,4 +1,4 @@
-// File: /home/fuka/tnewt_web/noa_fork/tnewt_web/vacation-rental/app/guest-info/page.tsx
+// File: /home/noa/tnewt/tnewt_web/vacation-rental/app/guest-info/page.tsx
 import * as entry from '../../../../app/guest-info/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

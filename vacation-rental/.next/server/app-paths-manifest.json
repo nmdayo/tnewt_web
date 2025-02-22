@@ -1,9 +1,10 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
   "/api/send-email/route": "app/api/send-email/route.js",
   "/api/create-payment/route": "app/api/create-payment/route.js",
   "/page": "app/page.js",
+  "/check/page": "app/check/page.js",
   "/guest-info/page": "app/guest-info/page.js",
   "/confirm/page": "app/confirm/page.js",
-  "/email-sent/page": "app/email-sent/page.js",
-  "/check/page": "app/check/page.js"
+  "/email-sent/page": "app/email-sent/page.js"
 }

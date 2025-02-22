@@ -7,18 +7,47 @@ export default function CheckPage() {
   const router = useRouter();
   const [guestInfo, setGuestInfo] = useState({ lastName: "", firstName: "", email: "", phone: "" });
   const [amount, setAmount] = useState(10000);
+  const [bookingDates, setBookingDates] = useState({ checkIn: new Date(), checkOut: new Date() });
 
   useEffect(() => {
-    // ローカルストレージからデータを取得
     const savedGuestInfo = localStorage.getItem("guestInfo");
     const savedAmount = localStorage.getItem("bookingAmount");
+    const savedDates = localStorage.getItem("bookingDates");
+    
     if (savedGuestInfo) setGuestInfo(JSON.parse(savedGuestInfo));
     if (savedAmount) setAmount(JSON.parse(savedAmount));
+    if (savedDates) {
+      const dates = JSON.parse(savedDates);
+      setBookingDates({
+        checkIn: new Date(dates.checkIn),
+        checkOut: new Date(dates.checkOut)
+      });
+    }
+
+    // URLパラメータから予約情報を取得
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get('email');
+    const amountParam = params.get('amount');
+    const checkInParam = params.get('checkIn');
+    const checkOutParam = params.get('checkOut');
+
+    if (emailParam && amountParam && checkInParam && checkOutParam) {
+      setGuestInfo(prev => ({ ...prev, email: emailParam }));
+      setAmount(parseInt(amountParam));
+      setBookingDates({
+        checkIn: new Date(checkInParam),
+        checkOut: new Date(checkOutParam)
+      });
+    }
   }, []);
 
   const handlePayment = async () => {
     try {
-      // 支払いセッションを作成
+      // URLパラメータから日付を取得
+      const params = new URLSearchParams(window.location.search);
+      const checkInParam = params.get('checkIn');
+      const checkOutParam = params.get('checkOut');
+
       const response = await fetch("/api/create-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -28,13 +57,14 @@ export default function CheckPage() {
           phone: guestInfo.phone,
           amount,
           currency: "JPY",
+          check_in_date: checkInParam,    // URLパラメータの日付を使用
+          check_out_date: checkOutParam   // URLパラメータの日付を使用
         }),
       });
 
       const result = await response.json();
 
       if (response.ok && result.session_url) {
-        // 支払いページにリダイレクト
         window.location.href = result.session_url;
       } else {
         console.error("支払いエラー:", result);
@@ -46,13 +76,24 @@ export default function CheckPage() {
     }
   };
 
+  // 日付のフォーマット関数
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+  };
+
   return (
     <div className="container max-w-2xl mx-auto py-8">
       <h1 className="text-2xl font-bold mb-6">確認ページ</h1>
       <p>名前: {`${guestInfo.lastName} ${guestInfo.firstName}`}</p>
       <p>メールアドレス: {guestInfo.email}</p>
       <p>電話番号: {guestInfo.phone}</p>
-      <p>金額: ¥{amount}</p>
+      <p>チェックイン: {formatDate(bookingDates.checkIn)}</p>
+      <p>チェックアウト: {formatDate(bookingDates.checkOut)}</p>
+      <p>金額: ¥{amount.toLocaleString()}</p>
       <button onClick={handlePayment} className="mt-4 p-2 bg-green-500 text-white rounded">
         支払い
       </button>

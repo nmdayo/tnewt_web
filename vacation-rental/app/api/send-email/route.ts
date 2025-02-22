@@ -17,10 +17,14 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
-    const { lastName, firstName, email, phone, amount } = data;
+    const { lastName, firstName, email, phone, amount, check_in_date, check_out_date } = data;
 
-    // 支払いページのURL生成
-    const paymentUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/check`;
+    // 支払いページのURLに予約情報を含める
+    const paymentUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/check?` + 
+      `email=${encodeURIComponent(email)}` +
+      `&amount=${encodeURIComponent(amount)}` +
+      `&checkIn=${encodeURIComponent(check_in_date)}` +
+      `&checkOut=${encodeURIComponent(check_out_date)}`;
 
     // メールの内容を作成
     const mailOptions = {

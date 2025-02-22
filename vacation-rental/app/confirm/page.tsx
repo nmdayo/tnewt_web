@@ -87,10 +87,13 @@ export default function ConfirmPage() {
       // データの検証
       validateGuestInfo(guestInfo);
 
-      // 日付の設定（チェックイン日を今日、チェックアウト日を明日に設定）
-      const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
+      // ローカルストレージから日付データを取得
+      const savedDates = localStorage.getItem("bookingDates");
+      let bookingDates = { checkIn: "", checkOut: "" };
+      
+      if (savedDates) {
+        bookingDates = JSON.parse(savedDates);
+      }
 
       console.log("Sending data to Supabase:", guestInfo);
 
@@ -105,8 +108,8 @@ export default function ConfirmPage() {
             phone: guestInfo.phone,
             amount: guestInfo.amount || 0,
             status: 'pending',
-            check_in_date: today.toISOString(),
-            check_out_date: tomorrow.toISOString()
+            check_in_date: bookingDates.checkIn,
+            check_out_date: bookingDates.checkOut
           }
         ])
         .select()
@@ -123,13 +126,22 @@ export default function ConfirmPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(guestInfo),
+        body: JSON.stringify({
+          ...guestInfo,
+          check_in_date: bookingDates.checkIn,
+          check_out_date: bookingDates.checkOut
+        }),
       });
 
       if (!emailResponse.ok) {
         throw new Error("メール送信に失敗しました");
       }
 
+      // メール送信成功時にローカルストレージをクリア
+      localStorage.removeItem("bookingDates");
+      localStorage.removeItem("bookingAmount");
+      localStorage.removeItem("guestInfo");
+      
       router.push("/email-sent");
     } catch (error) {
       console.error("Error details:", error);
