@@ -36,17 +36,19 @@ export async function POST(request: Request) {
 
     // Supabase に予約データを保存
     const { data: bookingData, error: supabaseError } = await supabase
-      .from("bookings")
+      .from("customer_info_data")
       .insert([
         {
-          name: data.name,
+          // nameをlast_nameとfirst_nameに分割
+          last_name: data.name.split(' ')[0],
+          first_name: data.name.split(' ')[1],
           email: data.email,
           phone: data.phone,
           amount: data.amount,
           status: "pending",
           check_in_date: checkInDate,
           check_out_date: checkOutDate,
-          address: address // `NULL` ではなく `""` を保存
+          address: address
         }
       ])
       .select()
@@ -68,7 +70,13 @@ export async function POST(request: Request) {
     const komojuData = {
       amount: data.amount,
       currency: "JPY",
-      payment_types: ["credit_card"],
+      payment_types: [
+        "credit_card",      // クレジットカード
+        "konbini",          // コンビニ決済
+        "bank_transfer",    // 銀行振込
+        "paypay",          // PayPay
+        "alipay"           // AliPay
+      ],
       return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/thank-you`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
       locale: "ja",
