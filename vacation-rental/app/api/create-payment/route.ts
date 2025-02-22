@@ -9,43 +9,61 @@ const KOMOJU_ENDPOINT = process.env.KOMOJU_API_URL || "https://komoju.com/api/v1
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    console.log("支払いリクエストデータ:", data);
+    console.log("受信したデータ:", data);
+    console.log("受信した address:", data.address);
 
     if (!KOMOJU_API_KEY || !KOMOJU_MERCHANT_UUID) {
       throw new Error("環境変数が正しく設定されていません");
     }
 
-    // 送信された日付データを直接使用
-    const checkInDate = new Date(data.check_in_date).toISOString().split('T')[0];
-    const checkOutDate = new Date(data.check_out_date).toISOString().split('T')[0];
+    // 日付を `YYYY-MM-DD` に変換
+    const checkInDate = new Date(data.check_in_date).toISOString().split("T")[0];
+    const checkOutDate = new Date(data.check_out_date).toISOString().split("T")[0];
 
-    console.log("Supabaseに保存する日付:", { checkInDate, checkOutDate });
+    // `address` が `null` や `undefined` なら `""` に変換
+    const address = data.address !== undefined && data.address !== null ? data.address.trim() : "";
 
-    // Supabaseに予約データを保存
+    console.log("Supabase に保存するデータ:", { 
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      amount: data.amount,
+      status: "pending",
+      check_in_date: checkInDate,
+      check_out_date: checkOutDate,
+      address
+    });
+
+    // Supabase に予約データを保存
     const { data: bookingData, error: supabaseError } = await supabase
       .from("bookings")
-      .insert({
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        amount: data.amount,
-        status: "pending",
-        check_in_date: checkInDate,
-        check_out_date: checkOutDate,
-      })
+      .insert([
+        {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          amount: data.amount,
+          status: "pending",
+          check_in_date: checkInDate,
+          check_out_date: checkOutDate,
+          address: address // `NULL` ではなく `""` を保存
+        }
+      ])
+      .select()
       .single();
 
     if (supabaseError) {
-      console.error("Supabase詳細エラー:", {
+      console.error("Supabase 詳細エラー:", {
         message: supabaseError.message,
         details: supabaseError.details,
         hint: supabaseError.hint,
         code: supabaseError.code
       });
-      throw new Error(`Supabase保存エラー: ${supabaseError.message}`);
+
+      throw new Error(`Supabase 保存エラー: ${supabaseError.message || "詳細不明のエラー"}`);
     }
 
-    console.log("Supabase保存成功:", bookingData);
+    console.log("Supabase 保存成功:", bookingData);
 
     const komojuData = {
       amount: data.amount,
@@ -81,7 +99,6 @@ export async function POST(request: Request) {
     const paymentSession = JSON.parse(responseText);
     console.log("Payment Session Created:", paymentSession);
 
-    // `session_url`を返却
     return NextResponse.json({ session_url: paymentSession.session_url });
   } catch (error: unknown) {
     console.error("Payment initialization failed:", error);

@@ -109,7 +109,8 @@ export default function ConfirmPage() {
             amount: guestInfo.amount || 0,
             status: 'pending',
             check_in_date: bookingDates.checkIn,
-            check_out_date: bookingDates.checkOut
+            check_out_date: bookingDates.checkOut,
+            address: guestInfo.address || ''
           }
         ])
         .select()

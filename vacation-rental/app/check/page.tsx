@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 export default function CheckPage() {
   const router = useRouter();
-  const [guestInfo, setGuestInfo] = useState({ lastName: "", firstName: "", email: "", phone: "" });
+  const [guestInfo, setGuestInfo] = useState({ lastName: "", firstName: "", email: "", phone: "", address: "" });
   const [amount, setAmount] = useState(10000);
   const [bookingDates, setBookingDates] = useState<{ 
     checkIn: string, 
@@ -36,9 +36,19 @@ export default function CheckPage() {
     const amountParam = params.get('amount');
     const checkInParam = params.get('checkIn');
     const checkOutParam = params.get('checkOut');
+    const lastNameParam = params.get('lastName');
+    const firstNameParam = params.get('firstName');
+    const phoneParam = params.get('phone');
+    const addressParam = params.get('address');
 
     if (emailParam && amountParam && checkInParam && checkOutParam) {
-      setGuestInfo(prev => ({ ...prev, email: emailParam }));
+      setGuestInfo({
+        lastName: lastNameParam || "",
+        firstName: firstNameParam || "",
+        email: emailParam,
+        phone: phoneParam || "",
+        address: addressParam || ""
+      });
       setAmount(parseInt(amountParam));
       setBookingDates({
         checkIn: checkInParam,
@@ -49,23 +59,30 @@ export default function CheckPage() {
 
   const handlePayment = async () => {
     try {
-      // URLパラメータから日付を取得
       const params = new URLSearchParams(window.location.search);
       const checkInParam = params.get('checkIn');
       const checkOutParam = params.get('checkOut');
 
+      // デバッグ用のログ出力
+      console.log("送信前のguestInfo:", guestInfo);
+
+      const paymentData = {
+        name: `${guestInfo.lastName} ${guestInfo.firstName}`,
+        email: guestInfo.email,
+        phone: guestInfo.phone,
+        amount,
+        currency: "JPY",
+        check_in_date: checkInParam,
+        check_out_date: checkOutParam,
+        address: guestInfo.address || ''  // 空文字列をフォールバックとして設定
+      };
+
+      console.log("送信するデータ:", paymentData);
+
       const response = await fetch("/api/create-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: `${guestInfo.lastName} ${guestInfo.firstName}`,
-          email: guestInfo.email,
-          phone: guestInfo.phone,
-          amount,
-          currency: "JPY",
-          check_in_date: checkInParam,    // URLパラメータの日付を使用
-          check_out_date: checkOutParam   // URLパラメータの日付を使用
-        }),
+        body: JSON.stringify(paymentData),
       });
 
       const result = await response.json();

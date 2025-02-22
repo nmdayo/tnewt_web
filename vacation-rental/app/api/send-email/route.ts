@@ -24,7 +24,11 @@ export async function POST(request: Request) {
       `email=${encodeURIComponent(email)}` +
       `&amount=${encodeURIComponent(amount)}` +
       `&checkIn=${encodeURIComponent(check_in_date)}` +
-      `&checkOut=${encodeURIComponent(check_out_date)}`;
+      `&checkOut=${encodeURIComponent(check_out_date)}` +
+      `&lastName=${encodeURIComponent(data.last_name)}` +
+      `&firstName=${encodeURIComponent(data.first_name)}` +
+      `&phone=${encodeURIComponent(data.phone)}` +
+      `&address=${encodeURIComponent(data.address)}`;
 
     // メールの内容を作成
     const mailOptions = {
