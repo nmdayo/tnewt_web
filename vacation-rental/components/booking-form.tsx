@@ -87,11 +87,19 @@ export function BookingForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 選択された日付をローカルストレージに保存
+    // 選択された日付を日本時間で保存
     if (dateRange?.from && dateRange?.to) {
+      const formatToJST = (date: Date) => {
+        return date.toLocaleDateString('ja-JP', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).replace(/\//g, '-');
+      };
+
       localStorage.setItem("bookingDates", JSON.stringify({
-        checkIn: dateRange.from.toISOString(),
-        checkOut: dateRange.to.toISOString()
+        checkIn: formatToJST(dateRange.from),
+        checkOut: formatToJST(dateRange.to)
       }));
     }
 

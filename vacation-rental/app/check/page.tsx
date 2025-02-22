@@ -7,7 +7,13 @@ export default function CheckPage() {
   const router = useRouter();
   const [guestInfo, setGuestInfo] = useState({ lastName: "", firstName: "", email: "", phone: "" });
   const [amount, setAmount] = useState(10000);
-  const [bookingDates, setBookingDates] = useState({ checkIn: new Date(), checkOut: new Date() });
+  const [bookingDates, setBookingDates] = useState<{ 
+    checkIn: string, 
+    checkOut: string 
+  }>({ 
+    checkIn: new Date().toLocaleDateString('ja-JP').replace(/\//g, '-'), 
+    checkOut: new Date().toLocaleDateString('ja-JP').replace(/\//g, '-') 
+  });
 
   useEffect(() => {
     const savedGuestInfo = localStorage.getItem("guestInfo");
@@ -19,8 +25,8 @@ export default function CheckPage() {
     if (savedDates) {
       const dates = JSON.parse(savedDates);
       setBookingDates({
-        checkIn: new Date(dates.checkIn),
-        checkOut: new Date(dates.checkOut)
+        checkIn: dates.checkIn,
+        checkOut: dates.checkOut
       });
     }
 
@@ -35,8 +41,8 @@ export default function CheckPage() {
       setGuestInfo(prev => ({ ...prev, email: emailParam }));
       setAmount(parseInt(amountParam));
       setBookingDates({
-        checkIn: new Date(checkInParam),
-        checkOut: new Date(checkOutParam)
+        checkIn: checkInParam,
+        checkOut: checkOutParam
       });
     }
   }, []);
@@ -76,13 +82,10 @@ export default function CheckPage() {
     }
   };
 
-  // 日付のフォーマット関数
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('ja-JP', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    });
+  // 日付のフォーマット関数（文字列用）
+  const formatDate = (dateStr: string) => {
+    const [year, month, day] = dateStr.split('-');
+    return `${year}年${month}月${day}日`;
   };
 
   return (
